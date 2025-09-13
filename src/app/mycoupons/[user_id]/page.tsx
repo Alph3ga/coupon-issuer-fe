@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-red-100 text-red-800",
 };
 
-export default function MyCouponsPage({ params }: { params: { user_id: string } }) {
+export default function MyCouponsPage({ params }: { params: Promise<{ user_id: string }> }) {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [count, setCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,8 @@ export default function MyCouponsPage({ params }: { params: { user_id: string } 
     async function fetchCoupons() {
       setLoading(true);
       try {
-        const res: AxiosResponse = await auth_get(`/coupons/${params.user_id}`);
+        const {user_id}= await params;
+        const res: AxiosResponse = await auth_get(`/coupons/${user_id}`);
         setCouponData(res.data);
       } catch (err) {
         console.error("Failed to fetch coupons", err);
@@ -61,7 +62,7 @@ export default function MyCouponsPage({ params }: { params: { user_id: string } 
       }
     }
     fetchCoupons();
-  }, [params.user_id]);
+  }, [params]);
 
   if (loading) {
     return (
